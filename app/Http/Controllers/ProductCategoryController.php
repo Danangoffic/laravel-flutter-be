@@ -21,10 +21,19 @@ class ProductCategoryController extends Controller
 
             return DataTables::of($query)
                 ->addColumn('action', function ($item) {
-                    return '<a class="inline-block border border-gray-700 bg-gray-700 text-white rounded-md px-2 py-1 m-1 transition duration-500 ease select-none
-                        hover:bg-gray-800 focus:outline-none focus:shadow-outline"></a>';
-                });
+                    return '<a class="inline-block border border-blue-700 bg-blue-700 text-white rounded-md px-2 py-1 m-1 transition duration-500 ease select-none
+                        hover:bg-blue-800 focus:outline-none focus:shadow-outline" href="' . route('dashboard.category.edit', $item->id) . '">Edit</a>
+                        <form class="inline-block" action="' . route('dashboard.category.destroy', $item->id) . '" method="POST">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button class="inline-block border border-gray-300 bg-gray-300 text-gray-700 rounded-md px-2 py-1 m-1 transition duration-500 ease select-none
+                        hover:bg-gray-500 hover:text-gray-200 focus:outline-none focus:shadow-outline" type="submit">Delete</button>
+                        </form>
+                        ';
+                })
+                ->rawColumns(['action'])
+                ->make();
         }
+        return view('pages.dashboard.category.index');
     }
 
     /**
@@ -34,7 +43,7 @@ class ProductCategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.dashboard.category.create');
     }
 
     /**
@@ -45,7 +54,10 @@ class ProductCategoryController extends Controller
      */
     public function store(ProductCategoryRequest $request)
     {
-        //
+        ProductCategory::create([
+            'name' => $request->name
+        ]);
+        return redirect()->route('dashboard.category.index');
     }
 
     /**
@@ -67,7 +79,7 @@ class ProductCategoryController extends Controller
      */
     public function edit(ProductCategory $category)
     {
-        //
+        return view('pages.dashboard.category.edit', ['category' => $category]);
     }
 
     /**
@@ -79,7 +91,11 @@ class ProductCategoryController extends Controller
      */
     public function update(ProductCategoryRequest $request, ProductCategory $category)
     {
-        //
+        $data = $request->all();
+        $category['name'] = $data['name'];
+
+        $category->update($data);
+        return redirect()->route('dashboard.category.index');
     }
 
     /**
@@ -90,6 +106,7 @@ class ProductCategoryController extends Controller
      */
     public function destroy(ProductCategory $category)
     {
-        //
+        $category->delete();
+        return redirect()->route('dashboard.category.index');
     }
 }
